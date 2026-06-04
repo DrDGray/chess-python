@@ -23,6 +23,7 @@ class Player:
 
     def _setup_pieces(self):
         from pieces import Pawn, Rook, Knight, Bishop, Queen, King
+
         return [
             *[
                 Pawn(self.type, (x, y))
@@ -63,10 +64,11 @@ class Player:
 
     def is_takeable_piece(self, dest: Tuple[str, str]):
         from pieces import King
+
         piece = self.get_piece_at_location(dest)
         return not (piece is None or piece is isinstance(piece, King))
 
-    def is_piece_at_location(self, loc: Tuple) -> bool: # TODO:
+    def is_piece_at_location(self, loc: Tuple) -> bool:  # TODO:
         pass
 
 

@@ -15,7 +15,7 @@ class ChessMove:
         must_take: bool = False,
         req_no_check: bool = False,
         first_move_only: bool = False,
-        no_take: bool = False
+        no_take: bool = False,
     ):
         self.x_axis = x_axis
         self.y_axis = y_axis
@@ -191,6 +191,7 @@ class ChessMove:
 
         return True
 
+
 class ChessPiece:
 
     @abstractmethod
@@ -255,6 +256,7 @@ class ChessPiece:
         """Returns if dest is a hypothetically valid move for piece."""
         return dest in self.compute_dest_locs()
 
+
 class Pawn(ChessPiece):
 
     # TODO: en passant
@@ -312,8 +314,9 @@ HORIZONTAL_MOVES = [
     *[ChessMove(x, y) for x, y in zip(range(1, 7), [0] * 7)],  # Right
     *[ChessMove(x, y) for x, y in zip(range(-1, -7, -1), [0] * 7)],  # Left
 ]
-class Rook(ChessPiece):
 
+
+class Rook(ChessPiece):
 
     def __init__(self, owner: PlayerType, ords: Tuple[int, int]):
         super().__init__(owner, ords, HORIZONTAL_MOVES)
@@ -337,10 +340,12 @@ class King(ChessPiece):
     def __init__(self, owner: PlayerType, ords: Tuple[int, int]):
         move_list = [
             *[
-                ChessMove(x, y, req_no_check=True) for x, y in zip(range(-1, 2), [1] * 3)
+                ChessMove(x, y, req_no_check=True)
+                for x, y in zip(range(-1, 2), [1] * 3)
             ],  # Top
             *[
-                ChessMove(x, y, req_no_check=True) for x, y in zip(range(-1, 2), [0] * 3)
+                ChessMove(x, y, req_no_check=True)
+                for x, y in zip(range(-1, 2), [0] * 3)
             ],  # Bottom
             *[
                 ChessMove(x, y, req_no_check=True) for x, y in zip([-1, 1], [0] * 2)
