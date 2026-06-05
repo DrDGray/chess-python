@@ -102,6 +102,10 @@ class Knight(ChessPiece):
             ChessMove(-1, 2),
             ChessMove(1, -2),
             ChessMove(-1, -2),
+            ChessMove(2, 1),
+            ChessMove(2, -1),
+            ChessMove(-2, 1),
+            ChessMove(-2, -1),
         ]
         super().__init__(owner, ords, move_list)
 
