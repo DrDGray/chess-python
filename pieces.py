@@ -1,195 +1,14 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
+from _helper import *
+import copy
 
-LETTER_LOC = ["A", "B", "C", "D", "E", "F", "G", "H"]
+from move import *
 
-
-class ChessMove:
-    def __init__(
-        self,
-        x_axis: int,
-        y_axis: int,
-        *,
-        must_take: bool = False,
-        req_no_check: bool = False,
-        first_move_only: bool = False,
-        no_take: bool = False,
-    ):
-        self.x_axis = x_axis
-        self.y_axis = y_axis
-        self.must_take = must_take
-        self.req_no_check = req_no_check
-        self.first_move_only = first_move_only
-        self.no_take = no_take
-
-    def invert_moveset(self) -> None:
-        self.x_axis = -self.x_axis
-        self.y_axis = -self.y_axis
-
-    def get_loc(self) -> Tuple[str, str]:
-        return (LETTER_LOC[self.x_axis], str(self.y_axis))
-
-    def get_ords(self) -> Tuple[int, int]:
-        return (self.x_axis, self.y_axis)
-
-    @staticmethod
-    def is_blocking_piece_en_route(
-        moving_piece: ChessPiece,
-        move_start_location: tuple[str, str],
-        move_end_location: tuple[str, str],
-        p1: Player,
-        p2: Player,
-    ) -> bool:
-
-        if not any(isinstance(moving_piece, x) for x in [Bishop, Queen, Rook]):
-            return False
-
-        start_ords = (
-            LETTER_LOC.index(move_start_location[0]),
-            int(move_start_location[1]) - 1,
-        )
-        end_ords = (
-            LETTER_LOC.index(move_end_location[0]),
-            int(move_end_location[1]) - 1,
-        )
-        board_piece_ords = p1.get_piece_ords() + p2.get_piece_ords()
-
-        def check_horizontals() -> bool:
-
-            # Horizontal right
-            if start_ords[0] < end_ords[0] and start_ords[1] == end_ords[1]:
-                for x, y in zip(
-                    range(start_ords[0] + 1, end_ords[0]),
-                    [start_ords[1]] * (end_ords[0] - start_ords[0] - 1),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            # Horizontal left
-            if start_ords[0] > end_ords[0] and start_ords[1] == end_ords[1]:
-                for x, y in zip(
-                    range(start_ords[0] - 1, end_ords[0], -1),
-                    [start_ords[1]] * (end_ords[0] - start_ords[0] - 1),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            return False
-
-        def check_verticals() -> bool:
-
-            # Vertical up
-            if start_ords[0] == end_ords[0] and start_ords[1] < end_ords[1]:
-                for x, y in zip(
-                    [start_ords[0]] * (end_ords[1] - start_ords[1] - 1),
-                    range(start_ords[1] + 1, end_ords[1]),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            # Vertical down
-            if start_ords[0] == end_ords[0] and start_ords[1] > end_ords[1]:
-                for x, y in zip(
-                    [start_ords[0]] * (start_ords[1] - end_ords[1] - 1),
-                    range(start_ords[1] - 1, end_ords[1], -1),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            return False
-
-        def check_diagonals() -> bool:
-
-            # Diagonal up right
-            if start_ords[0] < end_ords[0] and start_ords[1] < end_ords[1]:
-                for x, y in zip(
-                    range(start_ords[0] + 1, end_ords[0]),
-                    range(start_ords[1] + 1, end_ords[1]),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            # Diagonal up left
-            if start_ords[0] > end_ords[0] and start_ords[1] < end_ords[1]:
-                for x, y in zip(
-                    range(start_ords[0] - 1, end_ords[0], -1),
-                    range(start_ords[1] + 1, end_ords[1]),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            # Diagonal down right
-            if start_ords[0] < end_ords[0] and start_ords[1] > end_ords[1]:
-                for x, y in zip(
-                    range(start_ords[0] + 1, end_ords[0]),
-                    range(start_ords[1] - 1, end_ords[1], -1),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            # Diagonal down left
-            if start_ords[0] > end_ords[0] and start_ords[1] > end_ords[1]:
-                for x, y in zip(
-                    range(start_ords[0] - 1, end_ords[0], -1),
-                    range(start_ords[1] - 1, end_ords[1], -1),
-                ):
-                    if (x, y) in board_piece_ords:
-                        return True
-
-            return False
-
-        if isinstance(moving_piece, Rook):
-            return check_horizontals() or check_verticals()
-        elif isinstance(moving_piece, Bishop):
-            return check_diagonals()
-        elif isinstance(moving_piece, Queen):
-            return check_horizontals() or check_verticals() or check_diagonals()
-
-        return False
-
-    @staticmethod
-    def will_move_put_in_check(dest: Tuple[str, str], p2: Player) -> bool:  # TODO:
-        return False
-
-    @staticmethod
-    def is_meet_move_condition(
-        moving_piece: ChessPiece, dest_move: Tuple[str, str], p2: Player
-    ) -> bool:
-
-        move_schemas = moving_piece.get_move_list()
-        for move_schema in move_schemas:
-
-            # Find corresponding schema
-            move_schema_ords = move_schema.get_ords()
-            piece_ords = moving_piece.get_ords()
-            dest_ords = (
-                move_schema_ords[0] + piece_ords[0],
-                move_schema_ords[1] + piece_ords[1],
-            )
-            replicated_dest_move = (LETTER_LOC[dest_ords[0]], str(dest_ords[1] + 1))
-            if dest_move != replicated_dest_move:
-                continue
-
-            if move_schema.no_take and move_schema.first_move_only:
-                return (
-                    p2.get_piece_at_location(dest_move) is None
-                    and not moving_piece.has_moved
-                )
-            elif move_schema.no_take:
-                return p2.get_piece_at_location(dest_move) is None
-            elif move_schema.first_move_only:
-                return not moving_piece.has_moved
-            elif move_schema.must_take:
-                return p2.is_takeable_piece(dest_move)
-            elif move_schema.req_no_check:
-                return not (
-                    moving_piece.is_in_check
-                    or ChessMove.will_move_put_in_check(dest_move, p2)
-                )
-
-        return True
+if TYPE_CHECKING:
+    from player import PlayerType
 
 
 class ChessPiece:
@@ -260,6 +79,7 @@ class ChessPiece:
 class Pawn(ChessPiece):
 
     # TODO: en passant
+    # TODO: promotion
 
     def __init__(self, owner: PlayerType, ords: Tuple[int, int]):
         move_list = [
@@ -289,37 +109,19 @@ class Knight(ChessPiece):
         return "KN"
 
 
-DIAGONAL_MOVES = [
-    *[ChessMove(x, y) for x, y in zip(range(1, 7), range(1, 7))],  # Up right
-    *[ChessMove(x, y) for x, y in zip(range(-1, -7, -1), range(1, 7))],  # Up left
-    *[ChessMove(x, y) for x, y in zip(range(1, 7), range(-1, -7, -1))],  # Down right
-    *[
-        ChessMove(x, y) for x, y in zip(range(-1, -7, -1), range(-1, -7, -1))
-    ],  # Down left
-]
-
-
 class Bishop(ChessPiece):
 
     def __init__(self, owner: PlayerType, ords: Tuple[int, int]):
-        super().__init__(owner, ords, DIAGONAL_MOVES)
+        super().__init__(owner, ords, copy.deepcopy(DIAGONAL_MOVES))
 
     def __str__(self) -> str:
         return "B"
 
 
-HORIZONTAL_MOVES = [
-    *[ChessMove(x, y) for x, y in zip([0] * 7, range(1, 7))],  # Up
-    *[ChessMove(x, y) for x, y in zip([0] * 7, range(-1, -7, -1))],  # Down
-    *[ChessMove(x, y) for x, y in zip(range(1, 7), [0] * 7)],  # Right
-    *[ChessMove(x, y) for x, y in zip(range(-1, -7, -1), [0] * 7)],  # Left
-]
-
-
 class Rook(ChessPiece):
 
     def __init__(self, owner: PlayerType, ords: Tuple[int, int]):
-        super().__init__(owner, ords, HORIZONTAL_MOVES)
+        super().__init__(owner, ords, copy.deepcopy(HORIZONTAL_MOVES))
 
     def __str__(self) -> str:
         return "R"
@@ -328,7 +130,7 @@ class Rook(ChessPiece):
 class Queen(ChessPiece):
 
     def __init__(self, owner: PlayerType, ords: Tuple[int, int]):
-        super().__init__(owner, ords, DIAGONAL_MOVES + HORIZONTAL_MOVES)
+        super().__init__(owner, ords, copy.deepcopy(DIAGONAL_MOVES + HORIZONTAL_MOVES))
 
     def __str__(self) -> str:
         return "Q"

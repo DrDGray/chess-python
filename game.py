@@ -1,13 +1,10 @@
-from __future__ import annotations
-
-from player import Player, PlayerWhite, PlayerBlack
+from player import *
 from pieces import *
+from rules import *
 from typing import Tuple
+from _helper import *
 import re
 import os
-
-LETTER_LOC = ["A", "B", "C", "D", "E", "F", "G", "H"]
-NUMBER_LOC = range(1, 9)  # for the user
 
 
 class Game:
@@ -92,7 +89,7 @@ class Game:
                 continue
 
             # Is blocking piece en-route?
-            if ChessMove.is_blocking_piece_en_route(
+            if Rules.is_blocking_piece_en_route(
                 moving_piece, move_start_location, move_end_location, p1, p2
             ):
                 print(
@@ -102,7 +99,7 @@ class Game:
                 continue
 
             # Move requirements
-            if ChessMove.is_meet_move_condition(moving_piece, move_end_location, p2):
+            if Rules.is_meet_move_condition(moving_piece, move_end_location, p2):
                 return (move_start_location, move_end_location)
             else:
                 print("ERROR: Move requirements not met.", end="\n")

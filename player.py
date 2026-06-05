@@ -1,8 +1,7 @@
-from __future__ import annotations
-
-from abc import abstractmethod
+from abc import ABC
 from enum import Enum
 from typing import Optional, Tuple
+from pieces import *
 
 
 class PlayerType(Enum):
@@ -10,9 +9,8 @@ class PlayerType(Enum):
     BLACK = 2
 
 
-class Player:
+class Player(ABC):
 
-    @abstractmethod
     def __init__(self, type: PlayerType):
         self.type = type
         self.pieces = self._setup_pieces()
@@ -22,7 +20,6 @@ class Player:
                 piece.invert_moveset()
 
     def _setup_pieces(self):
-        from pieces import Pawn, Rook, Knight, Bishop, Queen, King
 
         return [
             *[
@@ -63,10 +60,8 @@ class Player:
         return [p.get_location() for p in self.pieces]
 
     def is_takeable_piece(self, dest: Tuple[str, str]):
-        from pieces import King
-
         piece = self.get_piece_at_location(dest)
-        return not (piece is None or piece is isinstance(piece, King))
+        return not (piece is None or isinstance(piece, King))
 
     def is_piece_at_location(self, loc: Tuple) -> bool:  # TODO:
         pass
