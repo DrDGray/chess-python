@@ -1,8 +1,8 @@
-from player import *
-from pieces import *
-from rules import *
+from player import Player, PlayerBlack, PlayerWhite
+from rules import Rules
 from typing import Tuple
 from _helper import *
+from pieces import *
 import re
 import os
 
@@ -93,7 +93,7 @@ class Game:
                 moving_piece, move_start_location, move_end_location, p1, p2
             ):
                 print(
-                    "ERROR: Illegal move for piece (piece bloacking en-route).",
+                    "ERROR: Illegal move for piece (piece blocking en-route).",
                     end="\n",
                 )
                 continue
