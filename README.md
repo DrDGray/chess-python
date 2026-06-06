@@ -25,7 +25,6 @@ Run `python3 run.py` to play.
 │       └── run.py
 ├── README.md
 └── tests
-    ├── __init__.py
     ├── exceptions.py
     ├── fakes
     │   └── fake_game.py
