@@ -24,11 +24,13 @@ Run `python3 run.py` to play.
 │       ├── rules.py
 │       └── run.py
 ├── README.md
-└── test
+└── tests
     ├── __init__.py
-    ├── main.py
-    └── README.md
-
+    ├── exceptions.py
+    ├── fakes
+    │   └── game.py
+    ├── README.md
+    └── test_moves.py
 ```
 
 ### game.py
