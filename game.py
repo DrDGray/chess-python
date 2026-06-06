@@ -13,24 +13,34 @@ class Game:
         self.p1 = PlayerWhite()
         self.p2 = PlayerBlack()
 
+        self.turn = self.p1
+
+        self.valid_move = None
+
+        self.rules = Rules(self.p1, self.p2)
+
+        self.game_over = False
+
     def __call__(self):
+        while not self.game_over:
+            self.do_turn()
 
-        while True:
-            if Game.do_turn(self.p1, self.p2):
-                break
-            if Game.do_turn(self.p2, self.p1):
-                break
+    def _get_roles(self) -> Tuple[Player, Player]:
+        """Returns (attacker, defender)"""
+        return (self.p1, self.p2) if self.turn == self.p1 else (self.p2, self.p1)
 
-    @staticmethod
-    def do_turn(player: Player, enemy: Player):
+    def _change_turn(self) -> None:
+        self.turn = self.p1 if self.turn != self.p1 else self.p2
 
-        Game._show_board(player, enemy)
-        player_move = Game._get_valid_move(player, enemy)
-        Game._make_valid_move(player_move, player, enemy)
-        return Game.is_game_over()
+    def do_turn(self) -> None:
 
-    @staticmethod
-    def _show_board(p1: Player, p2: Player) -> None:
+        self._show_board()
+        self._get_valid_move()
+        self._make_valid_move()
+        self._change_turn()
+        self._check_game_over()
+
+    def _show_board(self) -> None:
         os.system("cls" if os.name == "nt" else "clear")
         print("\t" + "\t".join(LETTER_LOC), end="\n\n")  # Cols
 
@@ -38,9 +48,9 @@ class Game:
             row = str(row)
             print(row, end="\t")
             for col in LETTER_LOC:
-                if (piece := p1.get_piece_at_location((col, row))) is not None:
+                if (piece := self.p1.get_piece_at_location((col, row))) is not None:
                     print(piece, end="\t")
-                elif (piece := p2.get_piece_at_location((col, row))) is not None:
+                elif (piece := self.p2.get_piece_at_location((col, row))) is not None:
                     print(piece, end="\t")
                 else:
                     print("<>", end="\t")
@@ -48,23 +58,23 @@ class Game:
 
         print("\n\t" + "\t".join(LETTER_LOC), end="\n\n")  # Cols
 
-    @staticmethod
-    def _get_valid_move(
-        p1: Player, p2: Player
-    ) -> Tuple[Tuple[str, str], Tuple[str, str]]:
+    def _get_valid_move(self) -> None:
 
-        p1_piece_locations = p1.get_piece_locations()  # (A, 1)
+        attacker, _ = self._get_roles()
+
+        attacker_piece_locations = attacker.get_piece_locations()  # (A, 1)
 
         while True:
 
             player_move = input('Enter move in format "B7 C6":')
             if not re.search(r"[A-Ha-h][0-7]\s[A-Ha-h][0-7](\s)?", player_move):  # type: ignore
+                print("ERROR: Invalid input.", end="\n")
                 continue
             move_start_location = (player_move[0].upper(), player_move[1])
             move_end_location = (player_move[3].upper(), player_move[4])
 
             # Invalid Choice
-            if not move_start_location in p1_piece_locations:
+            if not move_start_location in attacker_piece_locations:
                 print("ERROR: Invalid piece chosen.", end="\n")
                 continue
 
@@ -77,20 +87,20 @@ class Game:
                 continue
 
             # Player Piece
-            if move_end_location in p1_piece_locations:
+            if move_end_location in attacker_piece_locations:
                 print("ERROR: Cannot take own piece.", end="\n")
                 continue
 
             # Is move in moveset for piece?
-            moving_piece = p1.get_piece_at_location(move_start_location)
+            moving_piece = attacker.get_piece_at_location(move_start_location)
             assert moving_piece is not None
             if not moving_piece.is_valid_move(move_end_location):
                 print("ERROR: Illegal move for piece.", end="\n")
                 continue
 
             # Is blocking piece en-route?
-            if Rules.is_blocking_piece_en_route(
-                moving_piece, move_start_location, move_end_location, p1, p2
+            if self.rules.is_blocking_piece_en_route(
+                moving_piece, move_start_location, move_end_location
             ):
                 print(
                     "ERROR: Illegal move for piece (piece blocking en-route).",
@@ -99,26 +109,27 @@ class Game:
                 continue
 
             # Move requirements
-            if Rules.is_meet_move_condition(moving_piece, move_end_location, p2):
-                return (move_start_location, move_end_location)
+            if self.rules.is_meet_move_condition(moving_piece, move_end_location):
+                self.valid_move = (move_start_location, move_end_location)
+                break
             else:
                 print("ERROR: Move requirements not met.", end="\n")
                 continue
 
-    @staticmethod
-    def _make_valid_move(
-        move: Tuple[Tuple[str, str], Tuple[str, str]], p1: Player, p2: Player
-    ):
-        src = move[0]
-        dst = move[1]
+    def _make_valid_move(self) -> None:
 
-        moving_piece = p1.get_piece_at_location(src)
+        assert self.valid_move is not None
+        src = self.valid_move[0]
+        dst = self.valid_move[1]
+
+        attacker, defender = self._get_roles()
+
+        moving_piece = attacker.get_piece_at_location(src)
         assert moving_piece is not None
         moving_piece.set_location(dst)
 
-        if (taken_piece := p2.get_piece_at_location(dst)) is not None:
-            p2.remove_piece(taken_piece)
+        if (taken_piece := defender.get_piece_at_location(dst)) is not None:
+            defender.remove_piece(taken_piece)
 
-    @staticmethod
-    def is_game_over() -> bool:  # TODO:
-        return False
+    def _check_game_over(self) -> None:  # TODO:
+        pass

@@ -4,15 +4,17 @@ from player import Player
 
 class Rules:
 
-    # TODO: make instance and pass player objects -- make functions instance
+    # TODO: implement checkmate
 
-    @staticmethod
+    def __init__(self, p1: Player, p2: Player) -> None:
+        self.p1 = p1
+        self.p2 = p2
+
     def is_blocking_piece_en_route(
+        self,
         moving_piece: ChessPiece,
         move_start_location: tuple[str, str],
         move_end_location: tuple[str, str],
-        p1: Player,
-        p2: Player,
     ) -> bool:
 
         if not any(isinstance(moving_piece, x) for x in [Bishop, Queen, Rook]):
@@ -26,7 +28,7 @@ class Rules:
             LETTER_LOC.index(move_end_location[0]),
             int(move_end_location[1]) - 1,
         )
-        board_piece_ords = p1.get_piece_ords() + p2.get_piece_ords()
+        board_piece_ords = self.p1.get_piece_ords() + self.p2.get_piece_ords()
 
         def check_horizontals() -> bool:
 
@@ -121,14 +123,14 @@ class Rules:
 
         return False
 
-    @staticmethod
-    def will_move_put_in_check(dest: Tuple[str, str], p2: Player) -> bool:  # TODO:
+    def _will_move_put_in_check(self, dest: Tuple[str, str]) -> bool:  # TODO:
         return False
 
-    @staticmethod
     def is_meet_move_condition(
-        moving_piece: ChessPiece, dest_move: Tuple[str, str], p2: Player
+        self, moving_piece: ChessPiece, dest_move: Tuple[str, str]
     ) -> bool:
+
+        defender = self.p1 if moving_piece.owner == self.p2.type else self.p2
 
         move_schemas = moving_piece.get_move_list()
         for move_schema in move_schemas:
@@ -146,19 +148,18 @@ class Rules:
 
             if move_schema.no_take and move_schema.first_move_only:
                 return (
-                    p2.get_piece_at_location(dest_move) is None
+                    defender.get_piece_at_location(dest_move) is None
                     and not moving_piece.has_moved
                 )
             elif move_schema.no_take:
-                return p2.get_piece_at_location(dest_move) is None
+                return defender.get_piece_at_location(dest_move) is None
             elif move_schema.first_move_only:
                 return not moving_piece.has_moved
             elif move_schema.must_take:
-                return p2.is_takeable_piece(dest_move)
+                return defender.is_takeable_piece(dest_move)
             elif move_schema.req_no_check:
                 return not (
-                    moving_piece.is_in_check
-                    or Rules.will_move_put_in_check(dest_move, p2)
+                    moving_piece.is_in_check or self._will_move_put_in_check(dest_move)
                 )
 
         return True

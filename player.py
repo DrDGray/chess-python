@@ -19,7 +19,7 @@ class Player(ABC):
             for piece in self.pieces:
                 piece.invert_moveset()
 
-    def _setup_pieces(self):
+    def _setup_pieces(self) -> list[ChessPiece]:
 
         return [
             *[
@@ -44,7 +44,7 @@ class Player(ABC):
             King(self.type, (4, 0 if self.type is PlayerType.WHITE else 7)),
         ]
 
-    def remove_piece(self, piece: ChessPiece):
+    def remove_piece(self, piece: ChessPiece) -> None:
         self.pieces.remove(piece)
 
     def get_piece_at_location(self, loc: Tuple[str, str]) -> Optional[ChessPiece]:
@@ -59,7 +59,7 @@ class Player(ABC):
     def get_piece_locations(self) -> list[Tuple[str, str]]:
         return [p.get_location() for p in self.pieces]
 
-    def is_takeable_piece(self, dest: Tuple[str, str]):
+    def is_takeable_piece(self, dest: Tuple[str, str]) -> bool:
         piece = self.get_piece_at_location(dest)
         return not (piece is None or isinstance(piece, King))
 
