@@ -1,5 +1,5 @@
-from pieces import *
-from player import Player
+from .pieces import *
+from .player import Player
 
 
 class Rules:

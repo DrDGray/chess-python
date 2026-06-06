@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
 from typing import Optional, Tuple
-from pieces import *
+from .pieces import *
 
 
 class PlayerType(Enum):

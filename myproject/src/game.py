@@ -1,8 +1,8 @@
-from player import Player, PlayerBlack, PlayerWhite
-from rules import Rules
+from .player import Player, PlayerBlack, PlayerWhite
+from .rules import Rules
+from .helper import *
+from .pieces import *
 from typing import Tuple
-from helper import *
-from pieces import *
 import re
 import os
 
@@ -76,14 +76,6 @@ class Game:
             # Invalid Choice
             if not move_start_location in attacker_piece_locations:
                 print("ERROR: Invalid piece chosen.", end="\n")
-                continue
-
-            # On the board?
-            if not (
-                move_end_location[0] in LETTER_LOC
-                and int(move_end_location[1]) in NUMBER_LOC
-            ):
-                print("ERROR: Move location not on board.", end="\n")
                 continue
 
             # Player Piece

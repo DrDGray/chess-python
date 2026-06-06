@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from typing import Tuple, TYPE_CHECKING
-from helper import *
+from .move import ChessMove, HORIZONTAL_MOVES, DIAGONAL_MOVES
+from .helper import *
 import copy
 
-from move import ChessMove, HORIZONTAL_MOVES, DIAGONAL_MOVES
 
 if TYPE_CHECKING:
-    from player import PlayerType
+    from .player import PlayerType
 
 
 class ChessPiece:
