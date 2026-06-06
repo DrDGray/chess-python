@@ -8,8 +8,30 @@ Run `python3 run.py` to play.
 - [ ] En Passant
 - [ ] Promotion
 - [ ] Will move put king in check?
+- [ ] Testing
 
 ## Structure
+```
+.
+├── myproject
+│   └── src
+│       ├── __init__.py
+│       ├── game.py
+│       ├── helper.py
+│       ├── move.py
+│       ├── pieces.py
+│       ├── player.py
+│       ├── rules.py
+│       └── run.py
+├── README.md
+└── test
+    ├── __init__.py
+    ├── main.py
+    └── README.md
+
+```
+```
+```
 
 ### game.py
 Contains the `Game` class which is responsible for handling the gameplay loop.
