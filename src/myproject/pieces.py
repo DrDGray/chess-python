@@ -6,7 +6,6 @@ from .move import ChessMove, HORIZONTAL_MOVES, DIAGONAL_MOVES
 from .helper import *
 import copy
 
-
 if TYPE_CHECKING:
     from .player import PlayerType
 

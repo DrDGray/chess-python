@@ -13,8 +13,8 @@ Run `python3 run.py` to play.
 ## Structure
 ```
 .
-├── myproject
-│   └── src
+├── src
+│   └── myproject
 │       ├── __init__.py
 │       ├── game.py
 │       ├── helper.py
@@ -28,7 +28,7 @@ Run `python3 run.py` to play.
     ├── __init__.py
     ├── exceptions.py
     ├── fakes
-    │   └── game.py
+    │   └── fake_game.py
     ├── README.md
     └── test_moves.py
 ```

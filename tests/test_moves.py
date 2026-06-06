@@ -1,7 +1,7 @@
 import unittest
 
 from .exceptions import *
-from .fakes.game import *
+from .fakes.fake_game import *
 
 """
 | Assertion              | Purpose              |
