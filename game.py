@@ -23,7 +23,7 @@ class Game:
 
     def __call__(self):
         while not self.game_over:
-            self.do_turn()
+            self._do_turn()
 
     def _get_roles(self) -> Tuple[Player, Player]:
         """Returns (attacker, defender)"""
@@ -32,7 +32,7 @@ class Game:
     def _change_turn(self) -> None:
         self.turn = self.p1 if self.turn != self.p1 else self.p2
 
-    def do_turn(self) -> None:
+    def _do_turn(self) -> None:
 
         self._show_board()
         self._get_valid_move()
