@@ -1,7 +1,7 @@
 from collections.abc import Iterator
 from src.myproject import *
 import sys
-from ..exceptions import *
+from ..utils.exceptions import *
 
 
 class GameTest(Game):

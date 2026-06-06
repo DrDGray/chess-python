@@ -1,6 +1,6 @@
 import unittest
 
-from .exceptions import *
+from .utils.exceptions import *
 from .fakes.fake_game import *
 
 """
