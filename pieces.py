@@ -5,7 +5,7 @@ from typing import Tuple, TYPE_CHECKING
 from _helper import *
 import copy
 
-from move import *
+from move import ChessMove, HORIZONTAL_MOVES, DIAGONAL_MOVES
 
 if TYPE_CHECKING:
     from player import PlayerType
