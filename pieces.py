@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from typing import Tuple, TYPE_CHECKING
-from _helper import *
+from helper import *
 import copy
 
 from move import ChessMove, HORIZONTAL_MOVES, DIAGONAL_MOVES

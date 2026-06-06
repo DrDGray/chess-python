@@ -1,7 +1,7 @@
 from player import Player, PlayerBlack, PlayerWhite
 from rules import Rules
 from typing import Tuple
-from _helper import *
+from helper import *
 from pieces import *
 import re
 import os
