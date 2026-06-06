@@ -30,8 +30,6 @@ Run `python3 run.py` to play.
     └── README.md
 
 ```
-```
-```
 
 ### game.py
 Contains the `Game` class which is responsible for handling the gameplay loop.
