@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from myproject.src import *
+from src.myproject import *
 import sys
 from ..exceptions import *
 
