@@ -1,6 +1,6 @@
 from .player import Player, PlayerBlack, PlayerWhite
 from .rules import Rules
-from .utils.helper import *
+from .utils import *
 from .pieces import *
 from typing import Tuple
 import re
