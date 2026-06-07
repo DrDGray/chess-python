@@ -1,6 +1,6 @@
 import unittest
 
-from .utils.exceptions import *
+from .testutils import *
 from .fakes.fake_game import *
 
 """
@@ -63,3 +63,47 @@ class TestClass(unittest.TestCase):
         with self.assertRaises(InvalidMoveError) as r:
             GameTest(input)()
         self.assertEqual(str(r.exception), "Cannot take own piece.")
+
+    def test_put_king_in_check(self):
+        input = iter(
+            [
+                "e2 e4",
+                "e7 e5",
+                "d1 h5",
+                "g8 f6",
+                "h5 e5",  # Queen checks king along the e-file
+                "q()",
+            ]
+        )
+        self.assertTrue(False)
+
+    def test_checkmate(self):
+
+        input = iter(
+            [
+                "e2 e4",
+                "e7 e5",
+                "d1 h5",
+                "b8 c6",
+                "f1 c4",
+                "g8 f6",
+                "h5 f7",
+                "q()",
+            ]
+        )
+        self.assertTrue(False)
+
+    def test_move_other_piece_when_king_in_check(self):
+
+        input = iter(
+            [
+                "e2 e4",
+                "e7 e5",
+                "d1 h5",
+                "g8 f6",
+                "h5 e5",  # Queen checks king along the e-file
+                "a7 a6",  # Attempt to ignore check
+                "q()",
+            ]
+        )
+        self.assertTrue(False)

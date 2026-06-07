@@ -13,6 +13,7 @@ Run `python3 run.py` to play.
 ## Structure
 ```
 .
+├── README.md
 ├── src
 │   └── myproject
 │       ├── __init__.py
@@ -23,13 +24,13 @@ Run `python3 run.py` to play.
 │       ├── player.py
 │       ├── rules.py
 │       └── run.py
-├── README.md
 └── tests
-    ├── exceptions.py
     ├── fakes
     │   └── fake_game.py
     ├── README.md
-    └── test_moves.py
+    ├── test_moves.py
+    └── utils
+        └── exceptions.py
 ```
 
 ### game.py
