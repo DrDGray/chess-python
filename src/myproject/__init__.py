@@ -1,6 +1,5 @@
-from .helper import *
+from .utils.helper import *
 from .pieces import *
 from .player import *
 from .game import *
-from .move import *
 from .rules import *

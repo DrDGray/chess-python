@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Tuple, TYPE_CHECKING
 from .move import ChessMove, HORIZONTAL_MOVES, DIAGONAL_MOVES
-from .helper import *
+from ..utils.helper import *
 import copy
 
 if TYPE_CHECKING:
