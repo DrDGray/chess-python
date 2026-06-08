@@ -1,5 +1,6 @@
 from .pieces import *
 from .player import Player
+from typing import Optional
 
 
 class Rules:
@@ -9,26 +10,40 @@ class Rules:
     def __init__(self, p1: Player, p2: Player) -> None:
         self.p1 = p1
         self.p2 = p2
+        self.blocking_piece: Optional[ChessPiece] = None
 
     def is_blocking_piece_en_route(
         self,
         moving_piece: ChessPiece,
         move_start_location: tuple[str, str],
         move_end_location: tuple[str, str],
+        *,
+        is_computing_check: bool = False,
     ) -> bool:
+        """Checks for blocking piece on route to destination and returns
+        the appropriate boolean value. The blocking piece is stored in
+        self.blocking_piece."""
 
-        if not any(isinstance(moving_piece, x) for x in [Bishop, Queen, Rook]):
-            return False
+        if not is_computing_check:
+            if not any(isinstance(moving_piece, x) for x in [Bishop, Queen, Rook]):
+                return False
 
-        start_ords = (
-            LETTER_LOC.index(move_start_location[0]),
-            int(move_start_location[1]) - 1,
+        start_ords = convert_location_to_ords(
+            (move_start_location[0], move_start_location[1])
         )
-        end_ords = (
-            LETTER_LOC.index(move_end_location[0]),
-            int(move_end_location[1]) - 1,
+        end_ords = convert_location_to_ords(
+            (move_end_location[0], move_end_location[1])
         )
         board_piece_ords = self.p1.get_piece_ords() + self.p2.get_piece_ords()
+
+        def is_piece_at_location(ords: Tuple[int, int]) -> bool:
+            if ords in board_piece_ords:
+                if (cur_piece := self.p1.get_piece_at_ords(ords)) is not None:
+                    self.blocking_piece = cur_piece
+                else:
+                    self.blocking_piece = self.p2.get_piece_at_ords(ords)
+                return True
+            return False
 
         def check_horizontals() -> bool:
 
@@ -38,7 +53,7 @@ class Rules:
                     range(start_ords[0] + 1, end_ords[0]),
                     [start_ords[1]] * (end_ords[0] - start_ords[0] - 1),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             # Horizontal left
@@ -47,7 +62,7 @@ class Rules:
                     range(start_ords[0] - 1, end_ords[0], -1),
                     [start_ords[1]] * (end_ords[0] - start_ords[0] - 1),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             return False
@@ -60,7 +75,7 @@ class Rules:
                     [start_ords[0]] * (end_ords[1] - start_ords[1] - 1),
                     range(start_ords[1] + 1, end_ords[1]),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             # Vertical down
@@ -69,7 +84,7 @@ class Rules:
                     [start_ords[0]] * (start_ords[1] - end_ords[1] - 1),
                     range(start_ords[1] - 1, end_ords[1], -1),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             return False
@@ -82,7 +97,7 @@ class Rules:
                     range(start_ords[0] + 1, end_ords[0]),
                     range(start_ords[1] + 1, end_ords[1]),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             # Diagonal up left
@@ -91,7 +106,7 @@ class Rules:
                     range(start_ords[0] - 1, end_ords[0], -1),
                     range(start_ords[1] + 1, end_ords[1]),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             # Diagonal down right
@@ -100,7 +115,7 @@ class Rules:
                     range(start_ords[0] + 1, end_ords[0]),
                     range(start_ords[1] - 1, end_ords[1], -1),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             # Diagonal down left
@@ -109,10 +124,13 @@ class Rules:
                     range(start_ords[0] - 1, end_ords[0], -1),
                     range(start_ords[1] - 1, end_ords[1], -1),
                 ):
-                    if (x, y) in board_piece_ords:
+                    if is_piece_at_location((x, y)):
                         return True
 
             return False
+
+        if is_computing_check:
+            return check_diagonals() or check_horizontals() or check_verticals()
 
         if isinstance(moving_piece, Rook):
             return check_horizontals() or check_verticals()
@@ -124,6 +142,127 @@ class Rules:
         return False
 
     def _will_move_put_in_check(self, dest: Tuple[str, str]) -> bool:  # TODO:
+        return False
+
+    def is_piece_being_attacked(
+        self, *, defending_piece: ChessPiece, attacking_piece: ChessPiece
+    ) -> bool:
+
+        if attacking_piece.owner == defending_piece.owner:
+            return False
+
+        defending_piece_ords = defending_piece.get_ords()
+        attacker = self.p1 if attacking_piece.owner == self.p1.type else self.p2
+
+        if any(
+            defending_piece_ords == attacking_piece.compute_dest_ord(legal_move)
+            and not legal_move.no_take
+            for legal_move in attacking_piece.get_move_list()
+        ):
+            defending_piece.put_piece_in_check()
+            return True
+
+        if any(
+            defending_piece_ords == knight.compute_dest_ords()
+            for knight in attacker.get_knights()
+        ):
+            defending_piece.put_piece_in_check()
+            return True
+
+        return False
+
+    def set_player_check_status(self, player: Player) -> bool:
+        """Starts from a given chess piece and branches outwards until it meets a piece.
+        If the king location is in the legal moves of that piece, the king is in check.
+        Special case needed for knights.
+
+        Returns True of there's a check and False if no check.
+        """
+
+        king_piece = player.get_king()
+
+        king_ords = king_piece.get_ords()
+
+        # Horizontals
+        for inverter in range(-1, 2, 2):
+            for x in range(1 * inverter, 8 * inverter, 1 * inverter):
+
+                new_ord = king_ords[0] + x
+                if new_ord > 7 or new_ord < 0:
+                    break
+
+                if self.is_blocking_piece_en_route(
+                    king_piece,
+                    king_piece.get_location(),
+                    convert_ords_to_location((king_ords[0] + x, king_ords[1])),
+                    is_computing_check=True,
+                ):
+                    assert self.blocking_piece is not None
+                    if self.is_piece_being_attacked(
+                        defending_piece=king_piece, attacking_piece=self.blocking_piece
+                    ):
+                        return True
+
+        # Verticals
+        for inverter in range(-1, 2, 2):
+            for y in range(1 * inverter, 8 * inverter, 1 * inverter):
+
+                new_ord = king_ords[1] + y
+                if new_ord > 7 or new_ord < 0:
+                    break
+
+                if self.is_blocking_piece_en_route(
+                    king_piece,
+                    king_piece.get_location(),
+                    convert_ords_to_location((king_ords[0], king_ords[1] + y)),
+                    is_computing_check=True,
+                ):
+                    assert self.blocking_piece is not None
+                    if self.is_piece_being_attacked(
+                        defending_piece=king_piece, attacking_piece=self.blocking_piece
+                    ):
+                        return True
+
+        # Diagonals
+        for inverter in range(-1, 2, 2):
+            for xy in range(1 * inverter, 8 * inverter, 1 * inverter):
+
+                new_ord_1 = king_ords[0] + xy
+                new_ord_2 = king_ords[1] + xy
+                if not any(ord > 7 or ord < 0 for ord in (new_ord_1, new_ord_2)):
+                    if self.is_blocking_piece_en_route(  # TR BL
+                        king_piece,
+                        king_piece.get_location(),
+                        convert_ords_to_location(
+                            (king_ords[0] + xy, king_ords[1] + xy)
+                        ),
+                        is_computing_check=True,
+                    ):
+                        assert self.blocking_piece is not None
+                        if self.is_piece_being_attacked(
+                            defending_piece=king_piece,
+                            attacking_piece=self.blocking_piece,
+                        ):
+                            return True
+
+                new_ord_1 = king_ords[0] - xy
+                new_ord_2 = king_ords[1] + xy
+                if not any(ord > 7 or ord < 0 for ord in (new_ord_1, new_ord_2)):
+                    if self.is_blocking_piece_en_route(  # TL BR
+                        king_piece,
+                        king_piece.get_location(),
+                        convert_ords_to_location(
+                            (king_ords[0] - xy, king_ords[1] + xy)
+                        ),
+                        is_computing_check=True,
+                    ):
+                        assert self.blocking_piece is not None
+                        if self.is_piece_being_attacked(
+                            defending_piece=king_piece,
+                            attacking_piece=self.blocking_piece,
+                        ):
+                            return True
+
         return False
 
     def is_meet_move_condition(
@@ -142,6 +281,11 @@ class Rules:
                 move_schema_ords[0] + piece_ords[0],
                 move_schema_ords[1] + piece_ords[1],
             )
+
+            # Boundary check
+            if any(ord > 7 or ord < 0 for ord in (dest_ords[0], dest_ords[1] + 1)):
+                continue
+
             replicated_dest_move = (LETTER_LOC[dest_ords[0]], str(dest_ords[1] + 1))
             if dest_move != replicated_dest_move:
                 continue

@@ -94,6 +94,9 @@ class ChessPiece:
         self.ords = [LETTER_LOC.index(location[0]), int(location[1]) - 1]
         self.has_moved = True
 
+    def compute_dest_ord(self, move: ChessMove) -> Tuple[int, int]:
+        return (move.x_axis + self.ords[0], move.y_axis + self.ords[1])
+
     def compute_dest_ords(self) -> list[Tuple[int, int]]:
         return [
             (move.x_axis + self.ords[0], move.y_axis + self.ords[1])
@@ -120,6 +123,12 @@ class ChessPiece:
     def is_valid_move(self, dest: Tuple[str, str]) -> bool:
         """Returns if dest is a hypothetically valid move for piece."""
         return dest in self.compute_dest_locs()
+
+    def put_piece_in_check(self) -> None:
+        self.is_in_check = True
+
+    def remove_check(self) -> None:
+        self.is_in_check = False
 
 
 class Pawn(ChessPiece):

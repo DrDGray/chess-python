@@ -2,7 +2,7 @@ from .player import Player, PlayerBlack, PlayerWhite
 from .rules import Rules
 from .utils import *
 from .pieces import *
-from typing import Tuple
+from typing import Optional, Tuple
 import re
 import os
 
@@ -15,7 +15,7 @@ class Game:
 
         self.turn = self.p1
 
-        self.valid_move = None
+        self.valid_move: Optional[Tuple[Tuple[str, str], Tuple[str, str]]] = None
 
         self.rules = Rules(self.p1, self.p2)
 
@@ -67,7 +67,7 @@ class Game:
         while True:
 
             player_move = input('Enter move in format "B7 C6":')
-            if not re.search(r"[A-Ha-h][0-7]\s[A-Ha-h][0-7](\s)?", player_move):  # type: ignore
+            if not re.search(r"[A-Ha-h][1-8]\s[A-Ha-h][1-8](\s)?", player_move):  # type: ignore
                 print("ERROR: Invalid input.", end="\n")
                 continue
             move_start_location = (player_move[0].upper(), player_move[1])
@@ -116,12 +116,16 @@ class Game:
 
         attacker, defender = self._get_roles()
 
-        moving_piece = attacker.get_piece_at_location(src)
+        moving_piece = attacker.get_piece_at_location((src[0], src[1]))
         assert moving_piece is not None
-        moving_piece.set_location(dst)
+        moving_piece.set_location((dst[0], dst[1]))
 
-        if (taken_piece := defender.get_piece_at_location(dst)) is not None:
+        if (
+            taken_piece := defender.get_piece_at_location((dst[0], dst[1]))
+        ) is not None:
             defender.remove_piece(taken_piece)
+
+        self.rules.set_player_check_status(defender)
 
     def _check_game_over(self) -> None:  # TODO:
         pass

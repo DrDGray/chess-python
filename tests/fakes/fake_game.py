@@ -1,7 +1,7 @@
 from collections.abc import Iterator
 from src.myproject import *
 import sys
-from ..testutils import *
+from ..testutils.exceptions import *
 
 
 class GameTest(Game):
@@ -10,8 +10,11 @@ class GameTest(Game):
         self.input: Iterator[str] = input_str  # NOTE: player moves are pre-determined
         super().__init__()
 
-    def _show_board(self) -> None:  # NOTE: visualisation unnecessary for testing
-        pass
+    def _show_board(
+        self, show=False
+    ) -> None:  # NOTE: visualisation unnecessary for testing
+        if show:
+            super()._show_board()
 
     def _get_valid_move(self) -> None:  # NOTE: overridden to raise exceptions
 
@@ -24,7 +27,7 @@ class GameTest(Game):
             player_move = next(self.input)
             if player_move == "q()":  # NOTE: test-specific
                 sys.exit(0)
-            elif not re.search(r"[A-Ha-h][0-7]\s[A-Ha-h][0-7](\s)?", player_move):  # type: ignore
+            elif not re.search(r"[A-Ha-h][1-8]\s[A-Ha-h][1-8](\s)?", player_move):  # type: ignore
                 raise InvalidMoveError()
             move_start_location = (player_move[0].upper(), player_move[1])
             move_end_location = (player_move[3].upper(), player_move[4])

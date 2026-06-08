@@ -1,6 +1,6 @@
 from abc import ABC
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Iterator, Optional, Tuple
 from .pieces import *
 
 
@@ -18,6 +18,9 @@ class Player(ABC):
         if self.type is PlayerType.BLACK:
             for piece in self.pieces:
                 piece.invert_moveset()
+
+        self.king = next(p for p in self.pieces if isinstance(p, King))
+        self.is_in_check = False
 
     def _setup_pieces(self) -> list[ChessPiece]:
 
@@ -47,11 +50,14 @@ class Player(ABC):
     def remove_piece(self, piece: ChessPiece) -> None:
         self.pieces.remove(piece)
 
+    def get_piece_at_ords(self, ords: Tuple[int, int]) -> Optional[ChessPiece]:
+        return next((p for p in self.pieces if p.get_ords() == ords), None)
+
     def get_piece_at_location(self, loc: Tuple[str, str]) -> Optional[ChessPiece]:
-        for piece in self.pieces:
-            if piece.get_location() == loc:
-                return piece
-        return None
+        return next((p for p in self.pieces if p.get_location() == loc), None)
+
+    def get_king(self) -> ChessPiece:
+        return self.king
 
     def get_piece_ords(self) -> list[Tuple[int, int]]:
         return [p.get_ords() for p in self.pieces]
@@ -62,6 +68,9 @@ class Player(ABC):
     def is_takeable_piece(self, dest: Tuple[str, str]) -> bool:
         piece = self.get_piece_at_location(dest)
         return not (piece is None or isinstance(piece, King))
+
+    def get_knights(self) -> Iterator[Knight]:
+        return (p for p in self.pieces if isinstance(p, Knight))
 
     def is_piece_at_location(self, loc: Tuple) -> bool:  # TODO:
         pass

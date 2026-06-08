@@ -1,5 +1,9 @@
 # Chess
-Run `python3 run.py` to play.
+A passion project to remove the dust (and maybe add more shine) to my software engineering abilities.
+
+The main focuses are good architecture and TDD.
+
+Run `python3 -m src.myproject` to play.
 
 ## Remaining Development Tasks
 - [ ] Checkmate
@@ -8,6 +12,8 @@ Run `python3 run.py` to play.
 - [ ] En Passant
 - [ ] Promotion
 - [ ] Will move put king in check?
+    - [x] Is piece in check?
+    - [ ] Simulate board move
 - [ ] Testing
 
 ## Structure
@@ -17,20 +23,21 @@ Run `python3 run.py` to play.
 ├── src
 │   └── myproject
 │       ├── __init__.py
+│       ├── __main__.py
 │       ├── game.py
-│       ├── helper.py
-│       ├── move.py
 │       ├── pieces.py
 │       ├── player.py
 │       ├── rules.py
-│       └── run.py
+│       └── utils
+│           ├── __init__.py
+│           └── board_utils.py
 └── tests
     ├── fakes
     │   └── fake_game.py
-    ├── README.md
     ├── test_moves.py
-    └── utils
+    └── testutils
         └── exceptions.py
+
 ```
 
 ### game.py
@@ -53,5 +60,5 @@ Contains the `Player` class and its subclasses which is responsible for represen
 ### rules.py
 Contains the `Rules` class which is responsible for enforcing rules that require knowledge of the board state (e.g. a bishop can move any distance diagonally until it's blocked by another piece or the board edge).
 
-### helper.py
+### utils/
 Contains common resources that are used across multiple classes.
